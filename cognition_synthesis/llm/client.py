@@ -29,7 +29,10 @@ class LLMClient:
         try:
             response = self.client.chat.completions.create(
                 model=self.model,
-                messages=[{"role": "user", "content": prompt}],
+                messages=[
+                    {"role": "system", "content": "You are a helpful assistant."},
+                    {"role": "user", "content": prompt},
+                ],
                 temperature=0.0,
             )
             return response.choices[0].message.content.strip()
@@ -53,7 +56,10 @@ class LLMClient:
         try:
             response = self.client.chat.completions.create(
                 model=self.model,
-                messages=[{"role": "user", "content": prompt}],
+                messages=[
+                    {"role": "system", "content": "You are a helpful assistant."},
+                    {"role": "user", "content": prompt},
+                ],
                 temperature=0.7,  # Use a non-zero temperature for diversity
                 n=n,  # Request n completions
             )

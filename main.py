@@ -1,5 +1,6 @@
 from cognition_synthesis.llm.client import LLMClient
 from cognition_synthesis.prompts.manager import PromptManager
+from cognition_synthesis.parsing.parser import AnswerParser  # Import the new class
 
 
 def run_last_letter_concatenation_task():
@@ -11,8 +12,7 @@ def run_last_letter_concatenation_task():
     # Initialize the client
     # We use gpt-4o-mini as it's capable and cost-effective
     llm_client = LLMClient(model="gpt-4o-mini")
-
-    # Define the problem
+    parser = AnswerParser()
     problem = "What's the output when concatenating the last letter of each word of 'artificial intelligence'?"
 
     print(f"Problem: {problem}")
@@ -21,6 +21,9 @@ def run_last_letter_concatenation_task():
     response = llm_client.query(problem)
 
     print(f"LLM Response: {response}")
+
+    extracted_answer = parser.extract_answer(response)
+    print(f"Extracted Answer: {extracted_answer}")
     print("---------------------------------------------\n")
 
 
@@ -32,6 +35,7 @@ def run_cot_math_task():
 
     llm_client = LLMClient(model="gpt-4o-mini")
     prompt_manager = PromptManager()
+    parser = AnswerParser()
 
     problem = "I have 5 apples. I buy 2 more apples. Then I eat 1 apple. How many apples do I have left?"
     print(f"Problem: {problem}\n")
@@ -39,13 +43,17 @@ def run_cot_math_task():
     # 1. Direct query (often fails on multi-step logic)
     print("--- 1. Direct Query ---")
     direct_response = llm_client.query(problem)
-    print(f"LLM Response: {direct_response}\n")
+    print(f"LLM Response: {direct_response}")
+    direct_answer = parser.extract_answer(direct_response)
+    print(f"Extracted Answer: {direct_answer}\n")
 
     # 2. Zero-Shot CoT query
     print("--- 2. Zero-Shot CoT Query ---")
     zero_shot_prompt = prompt_manager.create_zero_shot_cot_prompt(problem)
     zero_shot_response = llm_client.query(zero_shot_prompt)
-    print(f"LLM Response:\n{zero_shot_response}\n")
+    print(f"LLM Response:\n{zero_shot_response}")
+    zero_shot_answer = parser.extract_answer(zero_shot_response)
+    print(f"Extracted Answer: {zero_shot_answer}\n")
 
     # 3. Few-Shot CoT query
     print("--- 3. Few-Shot CoT Query ---")
@@ -59,6 +67,8 @@ def run_cot_math_task():
     few_shot_prompt = prompt_manager.create_few_shot_cot_prompt(problem, examples)
     few_shot_response = llm_client.query(few_shot_prompt)
     print(f"LLM Response:\n{few_shot_response}")
+    few_shot_answer = parser.extract_answer(few_shot_response)
+    print(f"Extracted Answer: {few_shot_answer}")
     print("----------------------------------------")
 
 

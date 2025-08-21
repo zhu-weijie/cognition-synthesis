@@ -2,6 +2,7 @@ from cognition_synthesis.llm.client import LLMClient
 from cognition_synthesis.prompts.manager import PromptManager
 from cognition_synthesis.parsing.parser import AnswerParser
 from cognition_synthesis.reasoning.self_consistency import SelfConsistency
+from cognition_synthesis.pipelines.data_generator import DataGenerator
 
 
 def run_last_letter_concatenation_task():
@@ -103,7 +104,27 @@ def run_self_consistency_task():
     print("-----------------------------------")
 
 
+def run_data_generation_pipeline():
+    """
+    Runs the self-improvement data generation pipeline.
+    """
+    print("\n--- Running Self-Improvement Data Generation Pipeline ---")
+
+    llm_client = LLMClient(model="gpt-4o-mini")
+    output_file = "training_data.jsonl"  # JSON Lines format
+
+    # Clear the file for a fresh run
+    open(output_file, "w").close()
+
+    generator = DataGenerator(llm_client, output_file)
+
+    # Run the pipeline for each problem in our bank
+    generator.run(problem_id="math_001")
+    generator.run(problem_id="math_002")
+
+
 if __name__ == "__main__":
     # run_last_letter_concatenation_task()
     # run_cot_math_task()
-    run_self_consistency_task()
+    # run_self_consistency_task()
+    run_data_generation_pipeline()

@@ -11,13 +11,19 @@ class AnswerParser:
         # Patterns are ordered from most specific to most general.
         # The primary patterns are case-insensitive for robustness.
         self.patterns = [
-            # Matches "The final answer is: 123"
+            # Priority 1: Explicit phrases (case-insensitive)
             re.compile(r"The final answer is\s*:*\s*(.+)", re.IGNORECASE),
             # Matches "The answer is 123"
             re.compile(r"The answer is\s*:*\s*(.+)", re.IGNORECASE),
-            # Fallback: Matches a number at the end of the string, optionally
-            # followed by a single word (e.g., "11 balls.") and a period.
-            re.compile(r"(\b\d+(?:\.\d+)?\b)\s*\w*\.?\s*$", re.IGNORECASE),
+            re.compile(r"The output is\s*:*\s*(.+)", re.IGNORECASE),
+            # Priority 2: A number at the end of the string, allowing for a few
+            # trailing words (e.g., "6 apples left."). This is anchored to the
+            # end of the string (`$`) to avoid false positives.
+            # It matches a number, followed by 0 to 3 "word-like" segments.
+            re.compile(
+                r".*?(\b\d+(?:\.\d+)?\b)(?:\s*\w+){0,3}\.?\s*$",
+                re.IGNORECASE | re.DOTALL,
+            ),
         ]
 
     def extract_answer(self, text: str) -> Optional[str]:
@@ -30,16 +36,17 @@ class AnswerParser:
         Returns:
             The extracted answer as a string, or None if no answer is found.
         """
-        text = text.strip()
+        # Pre-process to remove common markdown and strip whitespace
+        text = text.strip().replace("**", "")
 
         for pattern in self.patterns:
             match = pattern.search(text)
             if match:
-                # The answer is the first captured group.
-                answer = match.group(1).strip()
-                # Clean up a potential trailing period if it's part of a broader match
+                # The answer is the last captured group. For our fallback regex,
+                # it's group(1). For others, it's also group(1).
+                answer = match.groups()[-1].strip()
                 if answer.endswith("."):
                     answer = answer[:-1]
-                return answer.strip()
+                return answer.strip('""')
 
         return None

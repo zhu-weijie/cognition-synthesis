@@ -1,6 +1,7 @@
 from cognition_synthesis.llm.client import LLMClient
 from cognition_synthesis.prompts.manager import PromptManager
-from cognition_synthesis.parsing.parser import AnswerParser  # Import the new class
+from cognition_synthesis.parsing.parser import AnswerParser
+from cognition_synthesis.reasoning.self_consistency import SelfConsistency
 
 
 def run_last_letter_concatenation_task():
@@ -72,6 +73,37 @@ def run_cot_math_task():
     print("----------------------------------------")
 
 
+def run_self_consistency_task():
+    """
+    Demonstrates the self-consistency technique on a more complex problem.
+    """
+    print("\n\n--- Running Self-Consistency Task ---")
+
+    # Setup
+    llm_client = LLMClient(model="gpt-4o-mini")
+    prompt_manager = PromptManager()
+    parser = AnswerParser()
+    self_consistency = SelfConsistency(llm_client, parser)
+
+    # A more complex problem that can sometimes trip up the LLM
+    problem = (
+        "A grocery store sold 15 apples on Monday. On Tuesday, it sold twice as many "
+        "apples as on Monday. On Wednesday, it sold 5 fewer apples than on Tuesday. "
+        "How many apples were sold in total over the three days?"
+    )
+    print(f"Problem: {problem}")
+
+    # Use a zero-shot CoT prompt to encourage reasoning
+    cot_prompt = prompt_manager.create_zero_shot_cot_prompt(problem)
+
+    # Run the self-consistency process
+    final_answer, raw_responses = self_consistency.reason(cot_prompt, n_samples=5)
+
+    print(f"\nFinal Consolidated Answer: {final_answer}")
+    print("-----------------------------------")
+
+
 if __name__ == "__main__":
-    run_last_letter_concatenation_task()
-    run_cot_math_task()
+    # run_last_letter_concatenation_task()
+    # run_cot_math_task()
+    run_self_consistency_task()

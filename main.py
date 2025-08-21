@@ -124,7 +124,15 @@ def run_data_generation_pipeline():
 
 
 if __name__ == "__main__":
-    # run_last_letter_concatenation_task()
-    # run_cot_math_task()
-    # run_self_consistency_task()
+    print("=================================================")
+    print("      COGNITION-SYNTHESIS DEMONSTRATION      ")
+    print("=================================================")
+
+    run_last_letter_concatenation_task()
+    run_cot_math_task()
+    run_self_consistency_task()
     run_data_generation_pipeline()
+
+    print("\n=================================================")
+    print("      DEMONSTRATION COMPLETE                 ")
+    print("=================================================")
